@@ -6,48 +6,89 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <h1>ARP Device Dashboard</h1>
-    <form id="configForm">
-  <label>
-    CIDR
-    <input id="cidrInput" type="text" placeholder="192.168.1.0/24" />
-  </label>
-
-  <label>
-    Interface
-    <input id="ifaceInput" type="text" placeholder="Ethernet" />
-  </label>
-
-  <label>
-    Interval (sec)
-    <input id="intervalInput" type="number" min="1" step="1" />
-  </label>
-
-  <button type="submit">Apply</button>
-  <span id="configStatus"></span>
-</form>
-
-
-    <a href="/api/export.csv">Download CSV</a>
-    <a href="/api/export.json">Download JSON</a>
-
-    <div class="grid">
-      <div>
-        <h2>Devices</h2>
-        <table id="devices">
-          <thead>
-            <tr>
-              <th>Status</th><th>IP</th><th>MAC</th><th>First Seen</th><th>Last Seen</th><th>Misses</th><th>Vendor</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    <header class="hero">
+      <div class="container hero-top">
+        <div>
+          <h1>ARP Device Dashboard</h1>
+          <p class="subhead">Live LAN discovery via ARP scans (IP ↔ MAC)</p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-pill"><span id="configSummary"></span></div>
+        </div>
       </div>
 
-      <div>
-        <h2>Events</h2>
-        <ul id="events"></ul>
+      <div class="map-wrap" aria-hidden="true">
+        <div class="globe">
+          <canvas id="globeCanvas" class="globe-canvas"></canvas>
+        </div>
       </div>
+    </header>
+
+    <div class="container">
+
+      <section class="card" id="configCard">
+        <div class="card-head">
+          <h2>Scan Config</h2>
+          <div class="actions">
+            <a class="btn btn-ghost" href="/api/export.csv">Download CSV</a>
+            <a class="btn btn-ghost" href="/api/export.json">Download JSON</a>
+          </div>
+        </div>
+
+        <form id="configForm" class="config-form">
+          <label>
+            <span>CIDR</span>
+            <input id="cidrInput" type="text" placeholder="192.168.1.0/24" />
+          </label>
+
+          <label>
+            <span>Interface</span>
+            <input id="ifaceInput" type="text" placeholder="Ethernet" />
+          </label>
+
+          <label>
+            <span>Interval (sec)</span>
+            <input id="intervalInput" type="number" min="1" step="1" />
+          </label>
+
+          <button class="btn btn-primary" type="submit">Apply</button>
+          <span id="configStatus" class="status"></span>
+        </form>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="card-head">
+            <h2>Devices</h2>
+            <div class="muted" id="deviceCount"></div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="devices">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>IP</th>
+                  <th>MAC</th>
+                  <th>Vendor</th>
+                  <th>First Seen</th>
+                  <th>Last Seen</th>
+                  <th>Misses</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Events</h2>
+            <div class="muted">Latest 15</div>
+          </div>
+          <ul id="events" class="events"></ul>
+        </div>
+      </section>
     </div>
 
     <script src="/static/app.js"></script>
