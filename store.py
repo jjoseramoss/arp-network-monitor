@@ -3,6 +3,7 @@ from dataclasses import dataclass, asdict
 import time
 from typing import Dict, List
 from scanner import Device
+from vendor_lookup import vendor_for_mac
 
 @dataclass
 class TrackedDevice:
@@ -12,6 +13,7 @@ class TrackedDevice:
     last_seen: float
     misses: int
     status: str # "online" | "offline"
+    vendor: str = ""
 
 @dataclass
 class Event:
@@ -34,7 +36,7 @@ class DeviceStore:
         if len(self.events) > self.max_events:
             self.events = self.events[-self.max_events :]
     
-    def update(self, seen_devices: list[Device]) -> None:
+    def update(self, seen_devices: list[Device], vendors: dict[str, str]) -> None:
         now = time.time()
         seen_macs: set[str] = set()
 
@@ -44,10 +46,14 @@ class DeviceStore:
         # - if new mac: create TrackedDevice + push "joined"
         # - else: update ip if changed (optional event), last_seen, misses=0, status="online"
         for device in seen_devices:
+            # New mac appears
             if device.mac not in self.devices_by_mac:
-                new_device = TrackedDevice(device.mac, device.ip, now, now, 0, "online")
+                #Find and add Vendor
+                vendor = vendor_for_mac(vendors, device.mac)
+                new_device = TrackedDevice(device.mac, device.ip, now, now, 0, "online", vendor)
                 self.devices_by_mac[new_device.mac] = new_device
                 self._push_event(Event(now, "joined", new_device.mac, new_device.ip))
+
             else:
                 self.devices_by_mac[device.mac].ip = device.ip
                 self.devices_by_mac[device.mac].last_seen = now

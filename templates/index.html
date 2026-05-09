@@ -7,6 +7,29 @@
   </head>
   <body>
     <h1>ARP Device Dashboard</h1>
+    <form id="configForm">
+  <label>
+    CIDR
+    <input id="cidrInput" type="text" placeholder="192.168.1.0/24" />
+  </label>
+
+  <label>
+    Interface
+    <input id="ifaceInput" type="text" placeholder="Ethernet" />
+  </label>
+
+  <label>
+    Interval (sec)
+    <input id="intervalInput" type="number" min="1" step="1" />
+  </label>
+
+  <button type="submit">Apply</button>
+  <span id="configStatus"></span>
+</form>
+
+
+    <a href="/api/export.csv">Download CSV</a>
+    <a href="/api/export.json">Download JSON</a>
 
     <div class="grid">
       <div>
@@ -14,7 +37,7 @@
         <table id="devices">
           <thead>
             <tr>
-              <th>Status</th><th>IP</th><th>MAC</th><th>First Seen</th><th>Last Seen</th><th>Misses</th>
+              <th>Status</th><th>IP</th><th>MAC</th><th>First Seen</th><th>Last Seen</th><th>Misses</th><th>Vendor</th>
             </tr>
           </thead>
           <tbody></tbody>
