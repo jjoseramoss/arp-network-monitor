@@ -1,0 +1,6 @@
+body { font-family: system-ui, Arial; margin: 20px; }
+.grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+tr.online td { background: #eaffea; }
+tr.offline td { background: #ffecec; color: #444; }
