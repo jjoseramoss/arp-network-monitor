@@ -16,7 +16,7 @@ class TrackedDevice:
 @dataclass
 class Event:
     ts: float
-    tyoe: str # "joined" | "left" | "ip_changed"
+    type: str # "joined" | "left" | "ip_changed"
     mac: str
     ip: str
 
@@ -24,8 +24,8 @@ class DeviceStore:
     def __init__(self, offline_after_misses: int = 3, max_events: int = 50) -> None:
         self.offline_after_misses = offline_after_misses
         self.max_events = max_events
-        self.device_by_mac: Dict[str, TrackedDevice] = {}
-        self.events = List[Event] = []
+        self.devices_by_mac: Dict[str, TrackedDevice] = {}
+        self.events : List[Event] = []
 
     def _push_event(self, event: Event) -> None:
         self.events.append(event)
@@ -43,11 +43,39 @@ class DeviceStore:
         # - add to seen_macs
         # - if new mac: create TrackedDevice + push "joined"
         # - else: update ip if changed (optional event), last_seen, misses=0, status="online"
+        for device in seen_devices:
+            if device.mac not in self.devices_by_mac:
+                new_device = TrackedDevice(device.mac, device.ip, now, now, 0, "online")
+                self.devices_by_mac[new_device.mac] = new_device
+                self._push_event(Event(now, "joined", new_device.mac, new_device.ip))
+            else:
+                self.devices_by_mac[device.mac].ip = device.ip
+                self.devices_by_mac[device.mac].last_seen = now
+                self.devices_by_mac[device.mac].misses = 0
+                self.devices_by_mac[device.mac].status = "online"
+
+            seen_macs.add(device.mac)
+
+
 
         # TODO: for each tracked device not in seen_macs:
         # - if status is already offline, you can keep it offline (or keep counting misses, either is fine)
         # - else increment misses
         # - if misses reaches offline_after_misses: status="offline" + push "left"
+        for device in self.devices_by_mac.values():
+            # Device not in seen_macs so these werent "online"
+            if device.mac not in seen_macs:
+                device.misses += 1
+                
+                if device.misses >= self.offline_after_misses:
+                    if device.status == "online":
+                        self._push_event(Event(now, "left", device.mac, device.ip))
+                        device.status = "offline"
+
+                
+
+
+
 
     def snapshot(self) -> dict:
         devices = list(self.devices_by_mac.values())
